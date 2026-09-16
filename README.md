@@ -1,16 +1,33 @@
 # Document Search Engine
 
-A small C++17 command-line project for searching a local collection of documents.
+A C++17 document retrieval engine combining inverted indexing, LRU caching, and request rate limiting. The project brings together search algorithms and request-handling components in a command-line application.
 
-The idea is to explore the retrieval part of a RAG pipeline: find a document that matches a query using an inverted index. The project also includes an LRU cache for repeated queries and a few rate-limiting algorithms. It does not use an LLM or generate answers.
+## Purpose
+
+Given a query, the engine retrieves the most relevant document from a local text collection based on shared query terms. An inverted index maps words to document IDs, allowing search to focus on documents that contain those terms.
+
+The architecture is inspired by the retrieval stage of Retrieval-Augmented Generation (RAG), with a focus on keyword matching, caching, and traffic control.
+
+## Architecture
+
+Each query passes through rate limiting before the cache is checked. A cache hit returns the stored result. On a cache miss, the search engine scores candidate documents, selects the best match, and caches the response.
+
+| Component | Responsibility |
+| --- | --- |
+| Inverted index | Map normalized words to document IDs for candidate lookup. |
+| Document ranking | Score candidates by the number of distinct query terms they contain. |
+| LRU cache | Reuse previous search results and evict the least recently used entry when full. |
+| Rate limiter | Control requests using token bucket, leaky bucket, or fixed window algorithms. |
+| Command-line interface | Accept queries and display results, cache activity, and rate-limit decisions. |
+
+## Technical foundation
+
+- **C++17** with standard library containers.
+- **Hash maps and sets** for indexing, query-term deduplication, and request tracking.
+- **A doubly linked list and hash map** for average O(1) cache lookup and insertion.
+- **A monotonic clock** for elapsed-time calculations in rate limiting.
+- **Text-based document storage**, with one document per line.
 
 ## Repository status
 
-This is the initial repository setup. Source code and build instructions will be added next.
-
-## Planned additions
-
-- Load documents from a text file and rank matches by shared query words.
-- Cache search results with an LRU eviction policy.
-- Compare token bucket, leaky bucket, and fixed window rate limiting.
-- Add tests for search, caching, and request limits.
+The repository currently contains the project overview and ignore rules. Source code will be added in stages: core retrieval, cache integration, and rate limiting, followed by tests and usage documentation.
